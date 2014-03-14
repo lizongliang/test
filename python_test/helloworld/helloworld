@@ -1,0 +1,4 @@
+#!/usr/bin/python
+#Filename:helloworld
+#run ./helloworld
+print 'Hello world'

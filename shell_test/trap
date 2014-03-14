@@ -1,0 +1,8 @@
+#!/bin/sh
+#不会被ctrl+c打断
+
+while test "1"="1"
+do
+trap "exit 0" SIGINT
+pwd
+done
