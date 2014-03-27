@@ -1,14 +1,25 @@
 #!/usr/bin/python
 #Filename:if.py
 
-number = 23
-guess = int(raw_input("Enter an integer: "))
+i = 9
+j = 10
+n = 11
+m = 12
 
-if guess == number:
-    print"Congratulations,u guessed it."
-elif guess < number:
-    print"it is little higher than that."
+if i == j:
+    print "i = j",i,j
+elif i > j:
+    print "big i is",i
 else:
-    print"it is little lower than that."
+    print "big j is",j
+
+
+if i < j \
+    and n > m:
+    print "j is ",j,"n is ",n
+elif i < j and n < m:
+    print "j is ",j,"m is",m
+else:
+    print i,j,n,m
 
 print "Done"

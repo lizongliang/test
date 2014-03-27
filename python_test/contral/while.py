@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #Filename:if.py
+#while ... else...
 
 number = 23
 running = True

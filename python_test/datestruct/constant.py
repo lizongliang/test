@@ -14,7 +14,7 @@ print "hello world"
 print '''hello world'''
 
 #printf ' ' '
-print 'what\' your name?'
+print 'what\'s your name?'
 
 #print" \"
 print "This is the first sentence\
