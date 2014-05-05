@@ -1,0 +1,20 @@
+#!/bin/bash
+
+num=$1
+kel=false
+
+if 
+    [ ! ${num} ]
+then
+    echo "num is NULL ${num}"
+#else
+#    echo "num is not NULL ${num}"
+fi
+
+if
+    [ ${kel} = "true" ]
+then
+    echo "kel is true"
+else
+    echo "kel is false"
+fi
