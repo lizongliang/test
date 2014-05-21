@@ -1,0 +1,31 @@
+#!/bin/bash
+
+read -p "Please input (y/n):" tmp
+
+if [ "$tmp" = "y" ] ; then
+    echo "y"
+fi
+
+if [ "$tmp" = "n" ] ; then
+    echo "n"
+fi
+
+if [ "$tmp" = "y" ] ; then
+    echo "y"
+elif [ "$tmp" = "n" ] ; then
+    echo "n"
+fi
+
+var=""
+
+if [ -n "$var" ] ; then
+    echo "var is $var"
+else
+    echo "var is tmp"
+fi
+
+if [ -f "$PWD/if_test" ] ; then
+    echo "if file"
+else
+    echo "no file"
+fi
