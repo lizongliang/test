@@ -1,0 +1,28 @@
+#!/bin/bash
+#run ./while_test
+
+echo while_test
+
+#for...in...done
+for i in $(seq 5) ; do
+    echo $i
+done
+
+#for...do...done
+for ((i=1;i<10;i++)) ; do
+    echo $i
+done
+
+#while...do...done
+i=10
+while [[ $i -gt 5 ]]; do
+    echo $i
+    ((i--))
+done
+
+#until...do...done
+i=10
+until [[ $i -lt 5 ]] ; do
+    echo $i
+    ((i--))
+done
