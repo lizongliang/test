@@ -1,20 +1,18 @@
 #!/bin/bash
+#run ./argument or ./argument 1
 
-num=$1
-kel=false
+#$#表示参数的个数
+echo $#
 
-if 
-    [ ! ${num} ]
-then
-    echo "num is NULL ${num}"
-#else
-#    echo "num is not NULL ${num}"
+#$0表示脚本本身的名称
+echo $0
+
+#$x代表第x个参数
+if [ -n "$1" ] ; then
+    echo $1
 fi
 
-if
-    [ ${kel} = "true" ]
-then
-    echo "kel is true"
-else
-    echo "kel is false"
+#$*代表整个参数列表,不包括$0
+if [ -n "$1" ] ; then
+    echo $*
 fi

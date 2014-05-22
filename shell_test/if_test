@@ -1,7 +1,11 @@
 #!/bin/bash
+#if ... then...fi
+#run ./if_test
 
+#输入一个字母
 read -p "Please input (y/n):" tmp
 
+#if...then...fi
 if [ "$tmp" = "y" ] ; then
     echo "y"
 fi
@@ -10,6 +14,7 @@ if [ "$tmp" = "n" ] ; then
     echo "n"
 fi
 
+#if...then...elif...fi
 if [ "$tmp" = "y" ] ; then
     echo "y"
 elif [ "$tmp" = "n" ] ; then

@@ -1,5 +1,6 @@
 #!/bin/sh
 #不会被ctrl+c打断
+#run ./trap
 
 while test "1"="1"
 do
