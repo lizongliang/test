@@ -1,0 +1,39 @@
+#!/bin/bash
+#run ./var_test
+
+echo var_test
+
+#let 变量前面不使用$符号
+a=1
+echo $a
+
+let a++
+echo $a
+
+let a--
+echo $a
+
+let a+=3
+echo $a
+
+#[]支持变量名和运算符间可以不带空格
+a=$[a+1]
+echo $a
+
+a=$[a-1]
+echo $a
+
+#(())和[]相似
+a=$((a+1))
+echo $a
+
+a=$((a-1))
+echo $a
+
+#expr 用``赋值,变量和运算符之间必须加空格
+a=`expr $a - 1`
+echo $a
+
+#bc 可以实现高级运算
+echo "4 * 5" | bc
+echo "sqrt(100) = `echo "sqrt(100)" |bc`"
