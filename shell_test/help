@@ -1,0 +1,11 @@
+#!/bin/bash
+#帮助文档的写法
+#run ./help
+
+echo help.sh
+
+cat<<HELP
+    usage:
+    ./help
+HELP
+
