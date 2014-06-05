@@ -1,0 +1,16 @@
+#!/bin/bash
+#获得文件所在目录
+#run ./help
+
+echo dirname.sh
+
+CUR=$PWD
+
+echo $CUR/$1
+if [ ! -f "$CUR/$1" ] ; then
+    TMP=`dirname $CUR/$1`
+    echo $TMP
+    mkdir -p $TMP
+fi
+
+echo succefull
