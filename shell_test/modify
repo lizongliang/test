@@ -1,0 +1,21 @@
+#!/bin/bash
+#=========================================
+#Author     : Caesar - ysten
+#Description: Complie RK SDK
+#=========================================
+
+set -e
+
+CUR_DIR=$PWD
+PUR_DIR=/home/ysten/work/rk/rk3066
+
+for ((i=1;i<=$#;i++)) ; do
+    if [ ! -f  $PUR_DIR/${!i} ] ; then
+        TMP=`dirname $PUR_DIR/${!i}`
+        echo $TMP
+        mkdir -p $TMP
+    fi
+    cp $CUR_DIR/${!i} $PUR_DIR/${!i}
+    echo copy ${!i} succefull
+done
+
