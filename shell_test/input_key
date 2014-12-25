@@ -1,0 +1,13 @@
+#!/system/bin/sh
+#run ./while_test
+
+echo while_test
+
+#while...do...done
+i=1
+while [[ $i -gt 0 ]]; do
+    echo $i
+    input keyevent 23
+    sleep 20
+    ((i++))
+done
