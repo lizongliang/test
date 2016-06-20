@@ -1,0 +1,162 @@
+============================================================
+     Adding Dialog BLE Audio ALSA driver
+============================================================
+
+- Add custom HID driver.
+
+  * Copy hid-dia-remote.c to KERNEL_PATH/drivers/hid
+
+  * Add driver to KERNEL_PATH/drivers/hid/Makefile
+
+    obj-$(CONFIG_HID_DIA_REMOTE)+= hid-dia-remote.o 
+
+  * Add driver to KERNEL_PATH/drivers/hid/Kconfig
+
+    config HID_DIA_REMOTE
+        tristate "Dialog audio and motion remote control support"
+        depends on USB_HID
+        ---help---
+        Support for Dialog audio and motion remote control.
+
+  * Enable the driver in the desired kernel configuration file.
+
+    e.g. arch/arm/configs/yourboard_defconfig
+    CONFIG_HID_DIA_REMOTE=y
+
+
+  * Add RCU IDs to KERNEL_PATH/drivers/hid/hid-ids.h
+
+    #define USB_VENDOR_ID_DIA_0         0x0000
+    #define USB_DEVICE_ID_DIA_REMOTE_0  0x0000
+    #define USB_VENDOR_ID_DIA           0x00D2  // Vendor ID
+    #define USB_DEVICE_ID_DIA_REMOTE    0x0580  // Device ID
+
+  * Add Your RCU name like(BLEREMOTE8 ) into supported_devices array in hid-dia-remote.c.
+
+Compile kernel and upgrade kernel, Once BLE remote connected. If RCU name and pnpID matched with driver,Alsa card will be register, below output will show
+
+[   44.954562@2] Initializing DIA_NEX HID driver
+
+confirm with below command  cat /proc/asound/cards 
+
+root@MagicBox_M13:/ # cat /proc/asound/cards
+ 0 [AMLM8AUDIO     ]: AML-M8AUDIO - AML-M8AUDIO
+                      AML-M8AUDIO
+ 1 [DIAAudio       ]: DIA Audio - DIAAudio
+                      DIALOG Remote 1 audio
+
+Test RCU audio record function with below command.
+
+
+tinycap file.wav -D 1 -d 0 -c 1 -r 16000 -b 16 -p 160 -n 4
+Change card-no according to cat /proc/asound/cards output
+
+
+
+============================================================
+     Adding Dialog BLE Audio HAL
+============================================================
+
+1) Add HAL module
+hardware/libhardware/modules/audio_dia_remote---->/system/lib/hw/audio.dia_remote.default.so
+
+2) modify /sysstem/etc/audio_policy.conf  refer to audio_policy.conf in packege  like below
+
+global_configuration {
+  attached_output_devices AUDIO_DEVICE_OUT_EARPIECE|AUDIO_DEVICE_OUT_SPEAKER
+  default_output_device AUDIO_DEVICE_OUT_SPEAKER
+  attached_input_devices AUDIO_DEVICE_IN_BUILTIN_MIC|AUDIO_DEVICE_IN_BACK_MIC|AUDIO_DEVICE_IN_REMOTE_SUBMIX|AUDIO_DEVICE_IN_DIA_REMOTE
+}
+
+  dia_remote {
+      inputs {
+        submix {
+          sampling_rates 16000
+          channel_masks AUDIO_CHANNEL_IN_MONO
+          formats AUDIO_FORMAT_PCM_16_BIT
+          devices AUDIO_DEVICE_IN_DIA_REMOTE
+        }
+      }
+    }
+
+3) 
+declare the new input device in system\core\include\system\audio.h
+
+enum {
+    …
+    /* input devices */
+    …
+    AUDIO_DEVICE_IN_DIA_REMOTE            = AUDIO_DEVICE_BIT_IN | <choose an unused bit>,
+
+    AUDIO_DEVICE_IN_ALL     = (…
+                               AUDIO_DEVICE_IN_DIA_REMOTE |
+                               AUDIO_DEVICE_IN_DEFAULT),
+    …
+};
+
+4)
+Then you need to modify the audio policy manager, which is a different file and library in kitkat and lollipop.
+- Lollipop-5.1.0
+                file: frameworks\av\services\audiopolicy\AudioPolicyManager.cpp
+                lib: /system/lib/audiopolicymanagerdefault.so
+- KitKat-4.4.4
+file: hardware\libhardware_legacy\audio\AudioPolicyManagerBase.cpp
+                lib: /system/lib/hw/audio_policy.default.so
+
+Find the sDeviceNameToEnumTable array and add the new device.
+
+const StringToEnum sDeviceNameToEnumTable[] = {
+    …
+    STRING_TO_ENUM(AUDIO_DEVICE_IN_DIA_REMOTE),
+};
+
+
+in order not to use the virtual sound card in case no remote is actually connected, we added an entry in the proc filesystem, 
+which can be used by the audio policy manager (or any other module) in order to check for connected remotes. 
+This must be enabled in the kernel driver. So add this in hid-dia-remote.c:
+
+
+
+Find the function getDeviceForInputSource. This function should return the new device type when appropriate.
+For example you can add something like this at the beginning of the function:
+
+
+#include <fcntl.h>
+static int dia_get_num_remotes()
+{
+    int num_remotes = 0;
+    int fd = open("/proc/dia-num-remotes", O_RDONLY);
+    if (fd == -1)
+        return 0;
+    if (read(fd, &num_remotes, sizeof(num_remotes)) != sizeof(num_remotes))
+        num_remotes = 0;
+    close(fd);
+    return num_remotes;
+}
+
+And use it to check for connected remotes. For example in Lollipop:
+
+    if (availableDeviceTypes & AUDIO_DEVICE_IN_DIA_REMOTE) {
+        if (inputSource == AUDIO_SOURCE_DEFAULT || inputSource == AUDIO_SOURCE_MIC
+            || inputSource == AUDIO_SOURCE_VOICE_RECOGNITION || inputSource == AUDIO_SOURCE_HOTWORD) {
+            if (dia_get_num_remotes() > 0) {
+                return AUDIO_DEVICE_IN_DIA_REMOTE;
+            }
+        }
+    }
+
+KitKat:
+
+    if (availableDeviceTypes & AUDIO_DEVICE_IN_DIA_REMOTE) {
+        if (inputSource == AUDIO_SOURCE_DEFAULT || inputSource == AUDIO_SOURCE_MIC
+            || inputSource == AUDIO_SOURCE_VOICE_RECOGNITION || inputSource == AUDIO_SOURCE_HOTWORD) {
+            if (dia_get_num_remotes() > 0) {
+                return AUDIO_DEVICE_IN_DIA_REMOTE;
+            }
+        }
+    }
+
+
+Of course this code may be modified taking the desired device priority into account.
+After ths integration, Dialog alsa card will default available to Audio Record app.
+
